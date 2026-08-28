@@ -659,7 +659,7 @@ void ANewChessGameMode::SpawnPiece(int32 Index, EChessPieceType PieceType, EChes
 	GS->ChessPieces[Index] = NewPiece;
 
 	//NewPiece->Multicast_ColorChanged();
-	NewPiece->ColorChange();
+	NewPiece->ApplyTeamColor();
 }
 
 void ANewChessGameMode::ChessPhase()

@@ -145,56 +145,6 @@ AChessPieceBase::AChessPieceBase()
 	{
 		BlackMaterial = BlackMaterialPtr.Object;
 	}
-
-	// Æù
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> PawnMaterial_3Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Pawn"));
-	if (PawnMaterial_3Ptr.Succeeded())
-	{
-		PawnMaterial_3 = PawnMaterial_3Ptr.Object;
-	}
-
-	// ·è
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> RookMaterial1_2Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Rook1_2"));
-	if (RookMaterial1_2Ptr.Succeeded())
-	{
-		RookMaterial1_2 = RookMaterial1_2Ptr.Object;
-	}
-
-	// ºñ¼ó
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> BishopMaterial2Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Bishop"));
-	if (BishopMaterial2Ptr.Succeeded())
-	{
-		BishopMaterial2 = BishopMaterial2Ptr.Object;
-	}
-
-	// Å·
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> SkinMaterial0Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Skin"));
-	if (SkinMaterial0Ptr.Succeeded())
-	{
-		SkinMaterial0 = SkinMaterial0Ptr.Object;
-	}
-
-	// Å·
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> KingMaterial5Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_King"));
-	if (KingMaterial5Ptr.Succeeded())
-	{
-		KingMaterial5 = KingMaterial5Ptr.Object;
-	}
-
-	// Äý
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> QueenMaterial4Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Queen"));
-	if (QueenMaterial4Ptr.Succeeded())
-	{
-		QueenMaterial4 = QueenMaterial4Ptr.Object;
-	}
-
-	// ³ªÀÌÆ®
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> KnightMaterial1Ptr(TEXT("/Game/Chess/ChessGame/ChessPieces/Mesh/MI_Knight"));
-	if (KnightMaterial1Ptr.Succeeded())
-	{
-		KnightMaterial1 = KnightMaterial1Ptr.Object;
-	}
-
 }
 
 // Called when the game starts or when spawned
@@ -239,6 +189,9 @@ void AChessPieceBase::BeginPlay()
 		GetCharacterMovement()->MaxWalkSpeed = PieceData->PieceStat.MoveSpeed;        
 
 		CurrentHP = PieceData->PieceStat.MaxHP;
+		// »ö»ó º¯°æ
+		ApplyTeamColor();
+		//ColorChange();
 	}
 	else
 	{
@@ -300,7 +253,7 @@ void AChessPieceBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AChessPieceBase::OnRep_Team()
 {
-	ColorChange();
+	ApplyTeamColor();
 }
 
 void AChessPieceBase::OnRep_CurrentHP()
@@ -657,6 +610,40 @@ void AChessPieceBase::PawnClientRestart()
 	PossessCon(PC);
 }
 
+void AChessPieceBase::ApplyTeamColor()
+{
+	if (!PieceData || !GetMesh())
+	{
+		return;
+	}
+
+	UMaterialInterface* TeamMaterial = nullptr;
+
+	switch (Team)
+	{
+	case EChessTeam::White:
+		TeamMaterial = WhiteMaterial;
+		break;
+
+	case EChessTeam::Black:
+		TeamMaterial = BlackMaterial;
+		break;
+
+	default:
+		return;
+	}
+
+	const int32 MaterialCount = GetMesh()->GetNumMaterials();
+
+	for (const int32 SlotIndex : PieceData->TeamMaterialSlots)
+	{
+		if (SlotIndex >= 0 && SlotIndex < MaterialCount)
+		{
+			GetMesh()->SetMaterial(SlotIndex, TeamMaterial);
+		}
+	}
+}
+
 void AChessPieceBase::Multicast_ShowBattleWidget_Implementation()
 {
 	if (!IsLocallyControlled())
@@ -682,159 +669,6 @@ void AChessPieceBase::GetLifetimeReplicatedProps(
 	DOREPLIFETIME(AChessPieceBase, CurrentHP);
 	DOREPLIFETIME(AChessPieceBase, bIsDead);
 
-}
-
-void AChessPieceBase::Multicast_ColorChanged_Implementation()
-{
-	ColorChange();
-}
-
-void AChessPieceBase::ColorChange()
-{
-	if (PieceType == EChessPieceType::Pawn)
-	{
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(0, WhiteMaterial);
-			GetMesh()->SetMaterial(1, WhiteMaterial);
-			GetMesh()->SetMaterial(2, WhiteMaterial);
-			GetMesh()->SetMaterial(4, WhiteMaterial);
-			GetMesh()->SetMaterial(5, WhiteMaterial);
-			GetMesh()->SetMaterial(6, WhiteMaterial);
-			GetMesh()->SetMaterial(7, WhiteMaterial);
-
-		}
-		else
-		{
-			GetMesh()->SetMaterial(0, BlackMaterial);
-			GetMesh()->SetMaterial(1, BlackMaterial);
-			GetMesh()->SetMaterial(2, BlackMaterial);
-			GetMesh()->SetMaterial(4, BlackMaterial);
-			GetMesh()->SetMaterial(5, BlackMaterial);
-			GetMesh()->SetMaterial(6, BlackMaterial);
-			GetMesh()->SetMaterial(7, BlackMaterial);
-		}
-
-		GetMesh()->SetMaterial(3, PawnMaterial_3);
-	}
-	else if (PieceType == EChessPieceType::Rook)
-	{
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(0, WhiteMaterial);
-			GetMesh()->SetMaterial(3, WhiteMaterial);
-			GetMesh()->SetMaterial(4, WhiteMaterial);
-
-
-		}
-		else
-		{
-			GetMesh()->SetMaterial(0, BlackMaterial);
-			GetMesh()->SetMaterial(3, BlackMaterial);
-			GetMesh()->SetMaterial(4, BlackMaterial);
-
-		}
-
-		GetMesh()->SetMaterial(1, RookMaterial1_2);
-		GetMesh()->SetMaterial(2, RookMaterial1_2);
-
-	}
-	else if (PieceType == EChessPieceType::Bishop)
-	{
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(0, WhiteMaterial);
-			GetMesh()->SetMaterial(1, WhiteMaterial);
-		}
-		else
-		{
-			GetMesh()->SetMaterial(0, BlackMaterial);
-			GetMesh()->SetMaterial(1, BlackMaterial);
-
-		}
-
-		GetMesh()->SetMaterial(2, BishopMaterial2);
-
-	}
-	else if (PieceType == EChessPieceType::King)
-	{
-		GetMesh()->SetMaterial(0, SkinMaterial0);
-
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(1, WhiteMaterial);
-			GetMesh()->SetMaterial(2, WhiteMaterial);
-			GetMesh()->SetMaterial(3, WhiteMaterial);
-			GetMesh()->SetMaterial(4, WhiteMaterial);
-			GetMesh()->SetMaterial(6, WhiteMaterial);
-			GetMesh()->SetMaterial(7, WhiteMaterial);
-		}
-		else
-		{
-			GetMesh()->SetMaterial(1, BlackMaterial);
-			GetMesh()->SetMaterial(2, BlackMaterial);
-			GetMesh()->SetMaterial(3, BlackMaterial);
-			GetMesh()->SetMaterial(4, BlackMaterial);
-			GetMesh()->SetMaterial(6, BlackMaterial);
-			GetMesh()->SetMaterial(7, BlackMaterial);
-
-		}
-
-		GetMesh()->SetMaterial(5, KingMaterial5);
-	}
-	else if (PieceType == EChessPieceType::Queen)
-	{
-		GetMesh()->SetMaterial(0, SkinMaterial0);
-
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(1, WhiteMaterial);
-			GetMesh()->SetMaterial(2, WhiteMaterial);
-			GetMesh()->SetMaterial(3, WhiteMaterial);
-			GetMesh()->SetMaterial(5, WhiteMaterial);
-			GetMesh()->SetMaterial(6, WhiteMaterial);
-			GetMesh()->SetMaterial(7, WhiteMaterial);
-		}
-		else
-		{
-			GetMesh()->SetMaterial(1, BlackMaterial);
-			GetMesh()->SetMaterial(2, BlackMaterial);
-			GetMesh()->SetMaterial(3, BlackMaterial);
-			GetMesh()->SetMaterial(5, BlackMaterial);
-			GetMesh()->SetMaterial(6, BlackMaterial);
-			GetMesh()->SetMaterial(7, BlackMaterial);
-
-		}
-
-		GetMesh()->SetMaterial(4, QueenMaterial4);
-
-	}
-	else if (PieceType == EChessPieceType::Knight)
-	{
-		GetMesh()->SetMaterial(0, SkinMaterial0);
-
-		if (Team == EChessTeam::White)
-		{
-			GetMesh()->SetMaterial(2, WhiteMaterial);
-			GetMesh()->SetMaterial(3, WhiteMaterial);
-			GetMesh()->SetMaterial(4, WhiteMaterial);
-			GetMesh()->SetMaterial(5, WhiteMaterial);
-			GetMesh()->SetMaterial(6, WhiteMaterial);
-			GetMesh()->SetMaterial(7, WhiteMaterial);
-		}
-		else
-		{
-			GetMesh()->SetMaterial(2, BlackMaterial);
-			GetMesh()->SetMaterial(3, BlackMaterial);
-			GetMesh()->SetMaterial(4, BlackMaterial);
-			GetMesh()->SetMaterial(5, BlackMaterial);
-			GetMesh()->SetMaterial(6, BlackMaterial);
-			GetMesh()->SetMaterial(7, BlackMaterial);
-
-		}
-
-		GetMesh()->SetMaterial(1, KnightMaterial1);
-	}
 }
 
 void AChessPieceBase::PostInitializeComponents()

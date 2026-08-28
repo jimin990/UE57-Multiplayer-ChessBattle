@@ -29,4 +29,7 @@ public:
 
 	 UPROPERTY(EditAnywhere)
 	 TObjectPtr<USkeletalMesh> Mesh;
+
+	 UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Visual")
+	 TArray<int32> TeamMaterialSlots;
 };

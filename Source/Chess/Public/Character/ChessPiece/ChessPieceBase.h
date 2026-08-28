@@ -100,7 +100,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UAnimMontage> DeadMontage;
 
-
 	void Look(const FInputActionValue& Value);
 
 	void Move(const FInputActionValue& Value);
@@ -195,37 +194,14 @@ public:
 	void Multicast_HideBattleWidget();
 
 public:
+	// 팀 색상 적용 함수
+	void ApplyTeamColor();
+
 	UPROPERTY(EditAnywhere, Category = "Material")
 	TObjectPtr<UMaterialInstance> WhiteMaterial;
 
 	UPROPERTY(EditAnywhere, Category = "Material")
 	TObjectPtr<UMaterialInstance> BlackMaterial;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> PawnMaterial_3;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> RookMaterial1_2;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> BishopMaterial2;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> SkinMaterial0;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> KingMaterial5;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> QueenMaterial4;
-
-	UPROPERTY(EditAnywhere, Category = "Material")
-	TObjectPtr<UMaterialInstance> KnightMaterial1;
-
-	void ColorChange();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ColorChanged();
 
 	virtual void PostInitializeComponents() override;
 
