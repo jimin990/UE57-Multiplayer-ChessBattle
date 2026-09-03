@@ -5,6 +5,8 @@
  <img width="800" height="450" alt="Battle_Chess" src="https://github.com/user-attachments/assets/56a24abf-0d0f-49fc-9c8b-d17215e89ac3" />
 </p>
 
+## 프로젝트 소개
+
 **Battle Chess**은 체스의 턴제 보드 이동과 실시간 캐릭터 전투를 결합한 2인 온라인 멀티플레이 게임입니다.
 
 Listen Server 기반으로 제작되었으며, Steam Sessetion을 통해 접속할 수 있습니다.
