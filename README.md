@@ -1,12 +1,9 @@
-# Project: Battle Chess
-+ 개발 기간 : 2026.05.01 ~ 2026.06.01
-+ 개발 인원 : 1인
-+ 장르 : 2인 멀티 플레이 체스 배틀
-+ 엔진 : Unreal Engine 5.7
-+ 언어 : C++, Blueprint
-+ 영상 : [Battle Chess 게임 플레이 영상](https://www.youtube.com/watch?v=tC9wKRi5SUg)
+# Battle Chess
+> Unreal Engine 5와 RPC·Replication·OnRep을 활용한 멀티 체스 배틀 게임
 
-<br>
+<p align="center">
+ <img width="800" height="450" alt="Battle_Chess" src="https://github.com/user-attachments/assets/56a24abf-0d0f-49fc-9c8b-d17215e89ac3" />
+</p>
 
 **Battle Chess**은 체스의 턴제 보드 이동과 실시간 캐릭터 전투를 결합한 2인 온라인 멀티플레이 게임입니다.
 
@@ -16,9 +13,19 @@ Listen Server 기반으로 제작되었으며, Steam Sessetion을 통해 접속�
 
 전투 단계에서는 각 플레이어가 자신의 체스말 Pawn을 조작하여 실시간으로 전투를 진행하며, 전투 결과에 따라 보드 상태가 갱신됩니다.
 
-<br>
+## 개발 정보
 
-# 개발 목표
+| 항목 | 내용 |
+|---|---|
+| 개발 인원 | 1인 |
+| 개발 기간 | 2026.05.01 ~ 2026.06.01 |
+| 엔진 | Unreal Engine 5.7 |
+| 언어 | C++ / Blueprint |
+| 장르 | 2인 멀티 플레이 체스 배틀 |
+| 개발 환경 | Visual Studio 2022 |
+| 영상 | [Battle Chess 게임 플레이 영상](https://www.youtube.com/watch?v=tC9wKRi5SUg)|
+
+## 핵심 목표
 - **서버 권위 기반 멀티플레이 구조**
   <br>
   클라이언트가 직접 게임의 상태를 변경하지 않고, 서버가 클라이언트의 요구를 판단, 검증하여 안정적인 멀티 시스템을 설계했습니다.
