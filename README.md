@@ -27,6 +27,9 @@ Listen Server 기반으로 제작되었으며, Steam Sessetion을 통해 접속�
 | 개발 환경 | Visual Studio 2022 |
 | 영상 | [Battle Chess 게임 플레이 영상](https://www.youtube.com/watch?v=tC9wKRi5SUg)|
 
+## 다운로드
+[Battle Chess 다운로드](https://drive.google.com/drive/folders/1pbk6wzJjnAD-M2_Ry3bJffAeC9SU87Ec?usp=drive_link)
+
 ## 기술 스택
 
 - Unreal Engine 5.7
