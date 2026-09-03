@@ -67,6 +67,33 @@ Listen Server 기반으로 제작되었으며, Steam Sessetion을 통해 접속�
   게임 페이즈 변경, 전투 상황 설정, 시간 조정 등을 빠르게 테스트할 수 있는 개발용 디버그 UI를 구현했습니다.
 <br>
 
+ ## 게임 진행 흐름 다이어그램 
+<details>
+<summary>펴기</summary>
+
+```mermaid
+flowchart TD
+    A["메인 메뉴"] --> B["방 생성 / 방 검색 / 방 참가"]
+    B --> C["로비 레벨"]
+    C --> D{"플레이어 2명 접속?"}
+    D -->|아니오| C
+    D -->|예| E["ServerTravel / SeamlessTravel"]
+    E --> F["체스 게임 레벨"]
+    F --> G["HandleSeamlessTravelPlayer"]
+    G --> H["White / Black 팀 배정"]
+    H --> I["ChoosePlayerStart"]
+    I --> J["CameraPawn 생성 및 Possess"]
+    J --> K["클라이언트 로컬 초기화"]
+    K --> L["GameState Delegate 바인딩 / UI 생성"]
+    L --> M["GamePhase 기반 게임 진행"]
+    M --> N{"게임 종료 조건 달성?"}
+    N -->|아니오| M
+    N -->|예| O["GameEndPhase"]
+    O --> P["결과 UI 표시 / 게임 종료"]
+```
+
+</details>
+
 # 핵심 구현
 ## 1. 서버 권위형 GameMode 구조
 게임의 핵심 진행은 서버의 GameMode에서만 처리하도록 구성했습니다.
@@ -171,5 +198,68 @@ Debug Widget
 ## 6. 추가적인 부분
 - 현재 게임은 Listen Server로 동작하지만, Dedicate Server 또한 대응이 가능하게 개발이 되어있습니다.
 - seamless Traval을 통한 로비에서 인 게임으로 끓김 없는 플레이가 가능합니다.
+
+# 주요 트러블 슈팅
+
+## 문제 1. SeamlessTravel 이후 Host와 Client의 초기화 타이밍 차이
+
+### 문제 상황
+
+로비에서 게임 맵으로 이동한 뒤, Host와 Client의 `PlayerController` 초기화 타이밍이 달랐습니다.
+
+특히 Host는 SeamlessTravel 이후 `BeginPlay`가 다시 호출되지 않는 상황이 있었고, Client는 새 월드에서 로컬 초기화가 다른 타이밍에 동작했습니다. 이로 인해 `GameState Delegate` 바인딩, UI 생성, Ready 호출 타이밍이 불안정했습니다.
+
+### 원인 분석
+
+Unreal의 멀티플레이 접속 흐름을 로그로 추적했습니다.
+
+- `PreLogin`
+- `PostLogin`
+- `HandleSeamlessTravelPlayer`
+- `HandleStartingNewPlayer`
+- `RestartPlayer`
+- `ChoosePlayerStart`
+- `PawnClientRestart`
+
+그 결과, 서버에서 처리해야 하는 초기화와 클라이언트 로컬에서 처리해야 하는 초기화를 분리해야 한다는 것을 확인했습니다.
+
+### 해결 방법
+
+- 팀 배정과 Pawn 생성은 서버 `GameMode`에서 처리
+- UI, GameState 바인딩, Ready 호출은 소유 클라이언트에서 처리
+- `PlayerController`의 Client RPC를 사용해 SeamlessTravel 이후 로컬 초기화 진입점 구성
+- GameState가 이미 존재하는 경우 즉시 바인딩하고, 아직 없는 경우 `GameStateSetEvent`를 통해 대기
+
+### 배운 점
+
+Unreal 멀티플레이에서는 Actor가 존재하는 위치와 실행 주체를 명확히 구분해야 합니다.
+
+`GameMode`는 서버에만 존재하고, `PlayerController`는 서버와 소유 클라이언트에만 존재하며, `GameState`는 서버와 모든 클라이언트에 복제됩니다. 이 차이를 기준으로 초기화 책임을 나누는 것이 중요하다는 것을 배웠습니다.
+
+---
+
+## 문제 2. Pawn 전환 후 Client 입력이 다시 동작하지 않는 문제
+
+### 문제 상황
+
+`CameraPawn`에서 `PiecePawn`으로 Possess한 뒤 다시 `CameraPawn`으로 돌아왔을 때, Host는 입력이 정상적으로 다시 바인딩되었지만 Client에서는 입력이 동작하지 않는 문제가 발생했습니다.
+
+### 원인 분석
+
+Possess는 서버에서 발생하지만, 실제 입력 바인딩은 소유 클라이언트의 로컬 Pawn / InputComponent에서 준비되어야 합니다.
+
+단순히 Possess만 처리하면 클라이언트에서 Pawn의 입력 설정 타이밍이 맞지 않을 수 있었습니다.
+
+### 해결 방법
+
+- Pawn이 자신의 입력 바인딩을 책임지도록 구조 유지
+- `PawnClientRestart` 시점에서 소유 클라이언트의 입력 재설정 처리
+- Controller에 모든 입력을 넣지 않고, Pawn별 입력 로직을 분리
+
+그 결과 전투 진입 시에는 `PiecePawn` 입력이 활성화되고, 전투 종료 후 `CameraPawn`으로 돌아왔을 때 체스판 이동 및 선택 입력이 다시 정상적으로 동작하도록 개선했습니다.
+
+### 배운 점
+
+멀티플레이에서 Possess는 단순히 Controller와 Pawn을 연결하는 것만이 아니라, 클라이언트의 Camera, Input, UI 상태까지 함께 고려해야 하는 흐름이라는 것을 이해했습니다.
 
 
