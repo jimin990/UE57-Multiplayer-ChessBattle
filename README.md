@@ -27,6 +27,20 @@ Listen Server 기반으로 제작되었으며, Steam Sessetion을 통해 접속�
 | 개발 환경 | Visual Studio 2022 |
 | 영상 | [Battle Chess 게임 플레이 영상](https://www.youtube.com/watch?v=tC9wKRi5SUg)|
 
+## 기술 스택
+
+- Unreal Engine 5.7
+- C++
+- Blueprint
+- Listen Server
+- Replication
+- RPC
+- Seamless Travel
+- Enhanced Input
+- Animation Montage / AnimNotifyState
+- UI / UMG
+- DataAsset
+
 ## 핵심 목표
 - **서버 권위 기반 멀티플레이 구조**
   <br>
